@@ -18,6 +18,16 @@ function die {
 }
 
 
+function max_size_arg() {
+    if [ -n "$max_size" ]
+    then
+        echo "--max-size $max_size"
+    else
+        echo ""
+    fi
+}
+
+
 function push_backup() {
     # Create the backup directory if needed.
     # (Re)create the symlinks if they don't exist, or if the number of
@@ -50,6 +60,7 @@ EOF
         --exclude-from=${CONFIG_DIR}/${MODULE}/exclude \
         --link-dest=../hourly.1 \
         -e "ssh ${SSH_IDENTITY}" \
+        $(max_size_arg) \
         $backup_root \
         $backup_host:$remote_path/${MODULE}/hourly.0;
 
