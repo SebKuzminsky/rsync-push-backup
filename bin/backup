@@ -1,11 +1,19 @@
 #!/bin/bash
 
+function log { # output to STDOUT
+    echo "$*"
+}
+
+function errlog { # output to STDERR
+    >&2 echo "$*"
+}
+
 function notify {
     if [ -n "${use_notify}" ]; then
         if which notify-send > /dev/null ; then
             DISPLAY=:0.0 XAUTHORITY=$HOME/.Xauthority notify-send "Backup" "$1"
         else
-            echo "'use_notify' config flag is set but notify-send is not installed"
+            errlog "'use_notify' config flag is set but notify-send is not installed"
         fi
     fi
 }
@@ -13,7 +21,7 @@ function notify {
 function die {
     rm -f ${CONFIG_DIR}/${MODULE}/lock
     notify "ERROR: $1"
-    echo "ERROR: $1"
+    errlog "ERROR: $1"
     exit 1
 }
 
@@ -72,7 +80,7 @@ function rotate_snapshots {
   local interval=$1
   local snapshot_var=${interval}_snapshots
   local snapshots=${!snapshot_var}
-  echo "Rotate $1"
+  log "Rotate $1"
 
   ssh ${SSH_IDENTITY} -T $backup_host <<EOF
     cd $remote_path/${MODULE};
@@ -101,7 +109,7 @@ function test_age() {
 	"stat -c '%Y' $remote_path/${MODULE}/$interval.0")
     [ -z "$mtime" ] && return 1
     age=$(( $(date +%s) - $mtime ))
-    echo "$interval age is $age / $max_age"
+    log "$interval age is $age / $max_age"
     test $age -gt $max_age
 }
 
@@ -115,7 +123,7 @@ function rotate_all_snapshots() {
 
 
 function backup_module() {
-    echo module $MODULE
+    log module $MODULE
 
     [ ! -f ${CONFIG_DIR}/${MODULE}/config ] && die "Config file not found in ${CONFIG_DIR}/${MODULE}/config"
 
@@ -124,7 +132,7 @@ function backup_module() {
 
     if [ -e ${CONFIG_DIR}/${MODULE}/lock ]; then
         notify "ERROR: Backup already running"
-        echo "ERROR: Backup already running"
+        errlog "ERROR: Backup already running"
         exit 1
     fi
 
@@ -176,7 +184,7 @@ done
 ARGS=(${0} "$@")
 
 # top-level config provides defaults
-echo config dir ${CONFIG_DIR}
+log config dir ${CONFIG_DIR}
 [ -r ${CONFIG_DIR}/config ] && source ${CONFIG_DIR}/config
 
 if [ -n "${ssh_id}" ]; then
@@ -203,7 +211,7 @@ for MODULE in ${MODULES[@]}; do
     # module's config don't affect the next module.
     ( backup_module )
     if [ $? -ne 0 ]; then
-        echo "module $MODULE failed, continuing"
+        errlog "module $MODULE failed, continuing"
         RETVAL=1
     fi
 done
