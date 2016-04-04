@@ -28,3 +28,13 @@ monthly_snapshots=12
 # rsync-push-backup uses the "notify-send" program to send desktop
 # notifications.
 use_notify=yes
+
+# Don't tranfer files bigger than this many bytes.  Default: transfer every
+# file that's not listed in the exclude file, regardless of size.  Note
+# that files skipped by the size limitation do not get removed from the far
+# side, unlike files excluded by the exclude file.
+# Accepts the same kinds of values as rsync's --max-size argument,
+# typically a number followed by an optional size multiplier, so for
+# example "500" means 500 bytes and "1.5m" means 1.5 megabytes.  See the
+# rsync(1) manpage for details.
+#max_size=10m
