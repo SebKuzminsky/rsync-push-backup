@@ -1,7 +1,5 @@
 #!/bin/bash
 
-. $HOME/.profile
-
 function notify {
     DISPLAY=:0.0 XAUTHORITY=$HOME/.Xauthority notify-send "Backup" "$1"
 }
