@@ -17,7 +17,8 @@ function die {
     exit 1
 }
 
-notify "Running backup"
+[ ! -f $HOME/.backup/config ] && die "Config file must be in $HOME/.backup/config"
+. $HOME/.backup/config
 
 if [ -e $HOME/.backup/lock ]; then
     notify "ERROR: Backup already running"
@@ -25,11 +26,9 @@ if [ -e $HOME/.backup/lock ]; then
     exit 1
 fi
 
+notify "Running backup"
+
 touch $HOME/.backup/lock
-
-[ ! -f $HOME/.backup/config ] && die "Config file must be in $HOME/.backup/config"
-
-. $HOME/.backup/config
 
 ssh -T $backup_host <<EOF
     mkdir -p $remote_path &&
