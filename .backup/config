@@ -17,3 +17,10 @@ hourly_snapshots=6
 daily_snapshots=7
 weekly_snapshots=4
 monthly_snapshots=12
+
+# Set the "use_notify" variable to a non-empty value to turn on desktop
+# notifications.  Leave it unset (or set to an empty value) to disable
+# desktop notifications.
+# rsync-push-backup uses the "notify-send" program to send desktop
+# notifications.
+use_notify=yes

@@ -1,7 +1,13 @@
 #!/bin/bash
 
 function notify {
-    DISPLAY=:0.0 XAUTHORITY=$HOME/.Xauthority notify-send "Backup" "$1"
+    if [ -n "${use_notify}" ]; then
+        if which notify-send > /dev/null ; then
+            DISPLAY=:0.0 XAUTHORITY=$HOME/.Xauthority notify-send "Backup" "$1"
+        else
+            echo "'use_notify' config flag is set but notify-send is not installed"
+        fi
+    fi
 }
 
 function die {
