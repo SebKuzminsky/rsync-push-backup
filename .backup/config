@@ -1,6 +1,18 @@
+# This is the machine we push the backups to.  May be either "HOST" or
+# "USER@HOST".
 backup_host=backuphost
+
+# The path on the backup_host that the backups live in.
+# This must name a directory on the backup_host.
 remote_path=Backup/$(uname -n)
+
+# The path on the local machine that gets backed up.
+# This must name a single directory on the local host.
+# This gets used directly as the rsync SRC argument, so trailing '/' makes
+# a difference.
 backup_root=$HOME/
+
+# Number of snapshots to keep.
 hourly_snapshots=6
 daily_snapshots=7
 weekly_snapshots=4
