@@ -11,16 +11,34 @@ function notify {
 }
 
 function die {
-    rm -f $HOME/.backup/lock
+    rm -f ${CONFIG_DIR}/lock
     notify "ERROR: $1"
     echo "ERROR: $1"
     exit 1
 }
 
-[ ! -f $HOME/.backup/config ] && die "Config file must be in $HOME/.backup/config"
-. $HOME/.backup/config
 
-if [ -e $HOME/.backup/lock ]; then
+CONFIG_DIR=${HOME}/.backup
+
+# top-level config provides defaults
+[ -r ${CONFIG_DIR}/config ] && source ${CONFIG_DIR}/config
+
+MODULE=""
+if [ -n "${1}" ]; then
+    MODULE="${1}"
+fi
+CONFIG_DIR=${CONFIG_DIR}/${MODULE}
+
+[ ! -f ${CONFIG_DIR}/config ] && die "Config file not found in ${CONFIG_DIR}/config"
+
+# module-level configs override the defaults
+source ${CONFIG_DIR}/config
+
+if [ -n ${MODULE} ]; then
+    remote_path=${remote_path}/${MODULE}
+fi
+
+if [ -e ${CONFIG_DIR}/lock ]; then
     notify "ERROR: Backup already running"
     echo "ERROR: Backup already running"
     exit 1
@@ -28,7 +46,7 @@ fi
 
 notify "Running backup"
 
-touch $HOME/.backup/lock
+touch ${CONFIG_DIR}/lock
 
 ssh -T $backup_host <<EOF
     mkdir -p $remote_path &&
@@ -43,7 +61,7 @@ EOF
 rsync -azP \
     --delete \
     --delete-excluded \
-    --exclude-from=$HOME/.backup/exclude \
+    --exclude-from=${CONFIG_DIR}/exclude \
     --link-dest=../hourly.1 \
     $backup_root \
     $backup_host:$remote_path/hourly.0;
@@ -91,6 +109,6 @@ test_age daily $(( 24*60*60 )) && rotate_snapshots daily
 test_age weekly $(( 7*24*60*60 )) && rotate_snapshots weekly
 test_age monthly $(( 30*24*60*60 )) && rotate_snapshots monthly
 
-rm $HOME/.backup/lock
+rm ${CONFIG_DIR}/lock
 
 notify "Backup done"
