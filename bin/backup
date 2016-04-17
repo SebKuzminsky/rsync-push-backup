@@ -19,15 +19,25 @@ function die {
 
 
 CONFIG_DIR=${HOME}/.backup
+while getopts 'c:' ARG; do
+    case ${ARG} in
+        'c')
+            [ -d ${OPTARG} ] || die "${OPTARG} is not a directory"
+            CONFIG_DIR=${OPTARG}
+            ;;
+        '?')
+            die "unknown command-line argument"
+            ;;
+    esac
+done
 
 # top-level config provides defaults
 [ -r ${CONFIG_DIR}/config ] && source ${CONFIG_DIR}/config
 
-MODULE=""
-if [ -n "${1}" ]; then
-    MODULE="${1}"
+MODULE=${!OPTIND}
+if [ -n ${MODULE} ]; then
+    CONFIG_DIR=${CONFIG_DIR}/${MODULE}
 fi
-CONFIG_DIR=${CONFIG_DIR}/${MODULE}
 
 [ ! -f ${CONFIG_DIR}/config ] && die "Config file not found in ${CONFIG_DIR}/config"
 
