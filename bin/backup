@@ -32,10 +32,12 @@ while getopts 'c:' ARG; do
 done
 
 # top-level config provides defaults
+echo config dir ${CONFIG_DIR}
 [ -r ${CONFIG_DIR}/config ] && source ${CONFIG_DIR}/config
 
 MODULE=${!OPTIND}
 if [ -n ${MODULE} ]; then
+    echo module $MODULE
     CONFIG_DIR=${CONFIG_DIR}/${MODULE}
 fi
 
