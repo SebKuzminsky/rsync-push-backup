@@ -88,6 +88,39 @@ function rotate_all_snapshots() {
 }
 
 
+function backup_module() {
+    echo module $MODULE
+
+    CONFIG_DIR=${CONFIG_DIR}/${MODULE}
+    [ ! -f ${CONFIG_DIR}/config ] && die "Config file not found in ${CONFIG_DIR}/config"
+
+    # module-level configs override the defaults
+    source ${CONFIG_DIR}/config
+
+    if [ -n ${MODULE} ]; then
+        remote_path=${remote_path}/${MODULE}
+    fi
+
+    if [ -e ${CONFIG_DIR}/lock ]; then
+        notify "ERROR: Backup already running"
+        echo "ERROR: Backup already running"
+        exit 1
+    fi
+
+    notify "Running backup"
+
+    touch ${CONFIG_DIR}/lock
+
+    push_backup
+
+    rotate_all_snapshots
+
+    rm ${CONFIG_DIR}/lock
+
+    notify "Backup done"
+}
+
+
 CONFIG_DIR=${HOME}/.backup
 while getopts 'c:' ARG; do
     case ${ARG} in
@@ -116,32 +149,4 @@ if [ -z ${MODULE} ]; then
     die "no backup module specified!"
 fi
 
-echo module $MODULE
-CONFIG_DIR=${CONFIG_DIR}/${MODULE}
-
-[ ! -f ${CONFIG_DIR}/config ] && die "Config file not found in ${CONFIG_DIR}/config"
-
-# module-level configs override the defaults
-source ${CONFIG_DIR}/config
-
-if [ -n ${MODULE} ]; then
-    remote_path=${remote_path}/${MODULE}
-fi
-
-if [ -e ${CONFIG_DIR}/lock ]; then
-    notify "ERROR: Backup already running"
-    echo "ERROR: Backup already running"
-    exit 1
-fi
-
-notify "Running backup"
-
-touch ${CONFIG_DIR}/lock
-
-push_backup
-
-rotate_all_snapshots
-
-rm ${CONFIG_DIR}/lock
-
-notify "Backup done"
+backup_module
