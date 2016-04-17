@@ -129,6 +129,8 @@ while getopts 'c:' ARG; do
     esac
 done
 
+ARGS=(${0} "$@")
+
 # top-level config provides defaults
 echo config dir ${CONFIG_DIR}
 [ -r ${CONFIG_DIR}/config ] && source ${CONFIG_DIR}/config
@@ -139,9 +141,20 @@ else
     SSH_IDENTITY=""
 fi
 
-MODULE=${!OPTIND}
-if [ -z ${MODULE} ]; then
-    die "no backup module specified!"
+if [ $(($# + 1)) -le ${OPTIND} ]; then
+    die "no modules specified"
 fi
 
-backup_module
+RETVAL=0
+for I in $(seq ${OPTIND} $#); do
+    MODULE=${ARGS[${I}]}
+    # Run the backup in a subshell so variables set by sourcing this
+    # module's config don't affect the next module.
+    ( backup_module )
+    if [ $? -ne 0 ]; then
+        echo "module $MODULE failed, continuing"
+        RETVAL=1
+    fi
+done
+
+exit ${RETVAL}
