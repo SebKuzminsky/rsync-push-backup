@@ -46,9 +46,15 @@ fi
 
 notify "Running backup"
 
+if [ -n "${ssh_id}" ]; then
+    SSH_IDENTITY="-i ${ssh_id} -o IdentitiesOnly=yes -o PreferredAuthentications=publickey"
+else
+    SSH_IDENTITY=""
+fi
+
 touch ${CONFIG_DIR}/lock
 
-ssh -T $backup_host <<EOF
+ssh ${SSH_IDENTITY} -T $backup_host <<EOF
     mkdir -p $remote_path &&
     cd $remote_path &&
     ln -sf ./hourly.$hourly_snapshots ./daily.0 &&
@@ -63,6 +69,7 @@ rsync -azP \
     --delete-excluded \
     --exclude-from=${CONFIG_DIR}/exclude \
     --link-dest=../hourly.1 \
+    -e "ssh ${SSH_IDENTITY}" \
     $backup_root \
     $backup_host:$remote_path/hourly.0;
 
@@ -74,7 +81,7 @@ function rotate_snapshots {
   local snapshots=${!snapshot_var}
   echo "Rotate $1"
 
-  ssh -T $backup_host <<EOF
+  ssh ${SSH_IDENTITY} -T $backup_host <<EOF
     cd $remote_path;
     [ -d $interval.$snapshots ] && rm -rf $interval.$snapshots;
     for i in {$snapshots..2}; do
@@ -96,7 +103,7 @@ function test_age() {
     local snapshot_var=${interval}_snapshots
     local last_snapshot=${!snapshot_var}
 
-    local mtime=$(ssh -T $backup_host \
+    local mtime=$(ssh ${SSH_IDENTITY} -T $backup_host \
 	"stat -c '%Y' $remote_path/$interval.0")
     [ -z "$mtime" ] && return 1
     age=$(( $(date +%s) - $mtime ))

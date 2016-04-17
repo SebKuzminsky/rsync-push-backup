@@ -2,6 +2,10 @@
 # "USER@HOST".
 backup_host=backuphost
 
+# The ssh key to use to authenticate with the backup_host.  Leave it unset
+# (or set it to the empty value) to skip ssh key authentication.
+#ssh_id=$HOME/.ssh/id_rsa
+
 # The path on the backup_host that the backups live in.
 # This must name a directory on the backup_host.
 remote_path=Backup/$(uname -n)
