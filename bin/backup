@@ -42,6 +42,44 @@ EOF
 }
 
 
+function rotate_snapshots {
+  local interval=$1
+  local snapshot_var=${interval}_snapshots
+  local snapshots=${!snapshot_var}
+  echo "Rotate $1"
+
+  ssh ${SSH_IDENTITY} -T $backup_host <<EOF
+    cd $remote_path;
+    [ -d $interval.$snapshots ] && rm -rf $interval.$snapshots;
+    for i in {$snapshots..2}; do
+      [ -d $interval.\$(( \$i - 1 )) ] && mv $interval.\$(( \$i - 1 )) $interval.\$i;
+    done;
+    if [ -h $interval.0 ]; then
+      touch -h $interval.0
+      cp -al \$(readlink $interval.0) $interval.1;
+    else
+      touch $interval.0
+      cp -al $interval.0 $interval.1;
+    fi;
+EOF
+}
+
+
+function test_age() {
+    local interval=$1
+    local max_age=$2
+    local snapshot_var=${interval}_snapshots
+    local last_snapshot=${!snapshot_var}
+
+    local mtime=$(ssh ${SSH_IDENTITY} -T $backup_host \
+	"stat -c '%Y' $remote_path/$interval.0")
+    [ -z "$mtime" ] && return 1
+    age=$(( $(date +%s) - $mtime ))
+    echo "$interval age is $age / $max_age"
+    test $age -gt $max_age
+}
+
+
 CONFIG_DIR=${HOME}/.backup
 while getopts 'c:' ARG; do
     case ${ARG} in
@@ -91,42 +129,6 @@ notify "Running backup"
 touch ${CONFIG_DIR}/lock
 
 push_backup
-
-function rotate_snapshots {
-  local interval=$1
-  local snapshot_var=${interval}_snapshots
-  local snapshots=${!snapshot_var}
-  echo "Rotate $1"
-
-  ssh ${SSH_IDENTITY} -T $backup_host <<EOF
-    cd $remote_path;
-    [ -d $interval.$snapshots ] && rm -rf $interval.$snapshots;
-    for i in {$snapshots..2}; do
-      [ -d $interval.\$(( \$i - 1 )) ] && mv $interval.\$(( \$i - 1 )) $interval.\$i;
-    done;
-    if [ -h $interval.0 ]; then
-      touch -h $interval.0
-      cp -al \$(readlink $interval.0) $interval.1;
-    else
-      touch $interval.0
-      cp -al $interval.0 $interval.1;
-    fi;
-EOF
-}
-
-function test_age() {
-    local interval=$1
-    local max_age=$2
-    local snapshot_var=${interval}_snapshots
-    local last_snapshot=${!snapshot_var}
-
-    local mtime=$(ssh ${SSH_IDENTITY} -T $backup_host \
-	"stat -c '%Y' $remote_path/$interval.0")
-    [ -z "$mtime" ] && return 1
-    age=$(( $(date +%s) - $mtime ))
-    echo "$interval age is $age / $max_age"
-    test $age -gt $max_age
-}
 
 rotate_snapshots hourly
 test_age daily $(( 24*60*60 )) && rotate_snapshots daily
