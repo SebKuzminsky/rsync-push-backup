@@ -18,6 +18,30 @@ function die {
 }
 
 
+function push_backup() {
+    ssh ${SSH_IDENTITY} -T $backup_host <<EOF
+        mkdir -p $remote_path &&
+        cd $remote_path &&
+        ln -sf ./hourly.$hourly_snapshots ./daily.0 &&
+        ln -sf ./daily.$daily_snapshots ./weekly.0 &&
+        ln -sf ./weekly.$weekly_snapshots ./monthly.0
+EOF
+
+    [ $? == 0 ] || die "Failed creating target path"
+
+    rsync -azP \
+        --delete \
+        --delete-excluded \
+        --exclude-from=${CONFIG_DIR}/exclude \
+        --link-dest=../hourly.1 \
+        -e "ssh ${SSH_IDENTITY}" \
+        $backup_root \
+        $backup_host:$remote_path/hourly.0;
+
+    [ $? == 0 ] || die "rsync failed"
+}
+
+
 CONFIG_DIR=${HOME}/.backup
 while getopts 'c:' ARG; do
     case ${ARG} in
@@ -34,6 +58,12 @@ done
 # top-level config provides defaults
 echo config dir ${CONFIG_DIR}
 [ -r ${CONFIG_DIR}/config ] && source ${CONFIG_DIR}/config
+
+if [ -n "${ssh_id}" ]; then
+    SSH_IDENTITY="-i ${ssh_id} -o IdentitiesOnly=yes -o PreferredAuthentications=publickey"
+else
+    SSH_IDENTITY=""
+fi
 
 MODULE=${!OPTIND}
 if [ -n ${MODULE} ]; then
@@ -58,34 +88,9 @@ fi
 
 notify "Running backup"
 
-if [ -n "${ssh_id}" ]; then
-    SSH_IDENTITY="-i ${ssh_id} -o IdentitiesOnly=yes -o PreferredAuthentications=publickey"
-else
-    SSH_IDENTITY=""
-fi
-
 touch ${CONFIG_DIR}/lock
 
-ssh ${SSH_IDENTITY} -T $backup_host <<EOF
-    mkdir -p $remote_path &&
-    cd $remote_path &&
-    ln -sf ./hourly.$hourly_snapshots ./daily.0 &&
-    ln -sf ./daily.$daily_snapshots ./weekly.0 &&
-    ln -sf ./weekly.$weekly_snapshots ./monthly.0
-EOF
-
-[ $? == 0 ] || die "Failed creating target path"
-
-rsync -azP \
-    --delete \
-    --delete-excluded \
-    --exclude-from=${CONFIG_DIR}/exclude \
-    --link-dest=../hourly.1 \
-    -e "ssh ${SSH_IDENTITY}" \
-    $backup_root \
-    $backup_host:$remote_path/hourly.0;
-
-[ $? == 0 ] || die "rsync failed"
+push_backup
 
 function rotate_snapshots {
   local interval=$1
