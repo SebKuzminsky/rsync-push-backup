@@ -11,7 +11,7 @@ function notify {
 }
 
 function die {
-    rm -f ${CONFIG_DIR}/lock
+    rm -f ${CONFIG_DIR}/${MODULE}/lock
     notify "ERROR: $1"
     echo "ERROR: $1"
     exit 1
@@ -20,8 +20,8 @@ function die {
 
 function push_backup() {
     ssh ${SSH_IDENTITY} -T $backup_host <<EOF
-        mkdir -p $remote_path &&
-        cd $remote_path &&
+        mkdir -p $remote_path/${MODULE} &&
+        cd $remote_path/${MODULE} &&
         ln -sf ./hourly.$hourly_snapshots ./daily.0 &&
         ln -sf ./daily.$daily_snapshots ./weekly.0 &&
         ln -sf ./weekly.$weekly_snapshots ./monthly.0
@@ -32,11 +32,11 @@ EOF
     rsync -azP \
         --delete \
         --delete-excluded \
-        --exclude-from=${CONFIG_DIR}/exclude \
+        --exclude-from=${CONFIG_DIR}/${MODULE}/exclude \
         --link-dest=../hourly.1 \
         -e "ssh ${SSH_IDENTITY}" \
         $backup_root \
-        $backup_host:$remote_path/hourly.0;
+        $backup_host:$remote_path/${MODULE}/hourly.0;
 
     [ $? == 0 ] || die "rsync failed"
 }
@@ -49,7 +49,7 @@ function rotate_snapshots {
   echo "Rotate $1"
 
   ssh ${SSH_IDENTITY} -T $backup_host <<EOF
-    cd $remote_path;
+    cd $remote_path/${MODULE};
     [ -d $interval.$snapshots ] && rm -rf $interval.$snapshots;
     for i in {$snapshots..2}; do
       [ -d $interval.\$(( \$i - 1 )) ] && mv $interval.\$(( \$i - 1 )) $interval.\$i;
@@ -72,7 +72,7 @@ function test_age() {
     local last_snapshot=${!snapshot_var}
 
     local mtime=$(ssh ${SSH_IDENTITY} -T $backup_host \
-	"stat -c '%Y' $remote_path/$interval.0")
+	"stat -c '%Y' $remote_path/${MODULE}/$interval.0")
     [ -z "$mtime" ] && return 1
     age=$(( $(date +%s) - $mtime ))
     echo "$interval age is $age / $max_age"
@@ -91,17 +91,12 @@ function rotate_all_snapshots() {
 function backup_module() {
     echo module $MODULE
 
-    CONFIG_DIR=${CONFIG_DIR}/${MODULE}
-    [ ! -f ${CONFIG_DIR}/config ] && die "Config file not found in ${CONFIG_DIR}/config"
+    [ ! -f ${CONFIG_DIR}/${MODULE}/config ] && die "Config file not found in ${CONFIG_DIR}/${MODULE}/config"
 
     # module-level configs override the defaults
-    source ${CONFIG_DIR}/config
+    source ${CONFIG_DIR}/${MODULE}/config
 
-    if [ -n ${MODULE} ]; then
-        remote_path=${remote_path}/${MODULE}
-    fi
-
-    if [ -e ${CONFIG_DIR}/lock ]; then
+    if [ -e ${CONFIG_DIR}/${MODULE}/lock ]; then
         notify "ERROR: Backup already running"
         echo "ERROR: Backup already running"
         exit 1
@@ -109,13 +104,13 @@ function backup_module() {
 
     notify "Running backup"
 
-    touch ${CONFIG_DIR}/lock
+    touch ${CONFIG_DIR}/${MODULE}/lock
 
     push_backup
 
     rotate_all_snapshots
 
-    rm ${CONFIG_DIR}/lock
+    rm ${CONFIG_DIR}/${MODULE}/lock
 
     notify "Backup done"
 }
