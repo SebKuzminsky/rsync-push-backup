@@ -142,12 +142,19 @@ else
 fi
 
 if [ $(($# + 1)) -le ${OPTIND} ]; then
-    die "no modules specified"
+    for D in ${CONFIG_DIR}/*; do
+        if [ -d ${D} -a -f ${D}/config ]; then
+            MODULES[${#MODULES[*]}]=$(basename $D)
+        fi
+    done
+else
+    for I in $(seq ${OPTIND} $#); do
+        MODULES[${#MODULES[*]}]=${ARGS[${I}]}
+    done
 fi
 
 RETVAL=0
-for I in $(seq ${OPTIND} $#); do
-    MODULE=${ARGS[${I}]}
+for MODULE in ${MODULES[@]}; do
     # Run the backup in a subshell so variables set by sourcing this
     # module's config don't affect the next module.
     ( backup_module )
