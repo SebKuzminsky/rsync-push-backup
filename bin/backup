@@ -112,10 +112,12 @@ else
 fi
 
 MODULE=${!OPTIND}
-if [ -n ${MODULE} ]; then
-    echo module $MODULE
-    CONFIG_DIR=${CONFIG_DIR}/${MODULE}
+if [ -z ${MODULE} ]; then
+    die "no backup module specified!"
 fi
+
+echo module $MODULE
+CONFIG_DIR=${CONFIG_DIR}/${MODULE}
 
 [ ! -f ${CONFIG_DIR}/config ] && die "Config file not found in ${CONFIG_DIR}/config"
 
