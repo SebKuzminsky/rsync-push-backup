@@ -1,0 +1,12 @@
+# The path on the local machine that gets backed up.
+# This must name a single directory on the local host.
+# This gets used directly as the rsync SRC argument, so trailing '/' makes
+# a difference.
+backup_root=/etc
+
+# Override number of snapshots for /etc
+# Note that monthly_snapshots is not set, so it retains its global value.
+hourly_snapshots=24
+daily_snapshots=14
+weekly_snapshots=50
+#monthly_snapshots=12

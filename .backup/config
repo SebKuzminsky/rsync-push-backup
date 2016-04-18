@@ -17,7 +17,7 @@ remote_path=Backup/$(uname -n)
 backup_root=$HOME/
 
 # Number of snapshots to keep.
-hourly_snapshots=6
+hourly_snapshots=24
 daily_snapshots=7
 weekly_snapshots=4
 monthly_snapshots=12
