@@ -121,8 +121,22 @@ function backup_module() {
 #
 
 CONFIG_DIR=${HOME}/.backup
-while getopts 'c:' ARG; do
+while getopts 'hc:' ARG; do
     case ${ARG} in
+        'h')
+            cat <<-"EOF"
+			usage: backup [OPTIONS] [MODULE...]
+
+			OPTIONS:
+			    -c CONFIGDIR   Read configuration from CONFIGDIR instead of
+			                   the default: $HOME/.backup
+			    -h             Show this help.
+
+			MODULE... names one or more modules to back up.  If no MODULE is named, all
+			modules are backed up.
+		EOF
+                exit 0
+                ;;
         'c')
             [ -d ${OPTARG} ] || die "${OPTARG} is not a directory"
             CONFIG_DIR=${OPTARG}
