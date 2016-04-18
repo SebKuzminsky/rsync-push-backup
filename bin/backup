@@ -116,6 +116,10 @@ function backup_module() {
 }
 
 
+#
+# main script starts here
+#
+
 CONFIG_DIR=${HOME}/.backup
 while getopts 'c:' ARG; do
     case ${ARG} in
