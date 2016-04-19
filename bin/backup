@@ -22,9 +22,9 @@ function push_backup() {
     ssh ${SSH_IDENTITY} -T $backup_host <<EOF
         mkdir -p $remote_path/${MODULE} &&
         cd $remote_path/${MODULE} &&
-        ln -sf ./hourly.$hourly_snapshots ./daily.0 &&
-        ln -sf ./daily.$daily_snapshots ./weekly.0 &&
-        ln -sf ./weekly.$weekly_snapshots ./monthly.0
+        rm -f daily.0   ; ln -s hourly.$hourly_snapshots daily.0;
+        rm -f weekly.0  ; ln -s daily.$daily_snapshots   weekly.0;
+        rm -f monthly.0 ; ln -s weekly.$weekly_snapshots monthly.0
 EOF
 
     [ $? == 0 ] || die "Failed creating target path"
