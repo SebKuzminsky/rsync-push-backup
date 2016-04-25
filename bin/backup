@@ -62,10 +62,16 @@ EOF
 
     [ $? == 0 ] || die "Failed creating target path"
 
+    EXCLUDE_FILE="${CONFIG_DIR}/${MODULE}/exclude"
+    if [ -f ${EXCLUDE_FILE} ]; then
+        EXCLUDE="--delete-excluded --exclude-from=${EXCLUDE_FILE}"
+    else
+        EXCLUDE=""
+    fi
+
     rsync -azP \
         --delete \
-        --delete-excluded \
-        --exclude-from=${CONFIG_DIR}/${MODULE}/exclude \
+        ${EXCLUDE} \
         --link-dest=../hourly.1 \
         -e "ssh ${SSH_IDENTITY}" \
         $(max_size_arg) \
