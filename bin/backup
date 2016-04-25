@@ -69,9 +69,16 @@ EOF
         EXCLUDE=""
     fi
 
+    if [ -n ${bwlimit} ]; then
+        BWLIMIT_ARG="--bwlimit=${bwlimit}"
+    else
+        BWLIMIT_ARG=""
+    fi
+
     rsync -azP \
         --delete \
         ${EXCLUDE} \
+        ${BWLIMIT_ARG} \
         --link-dest=../hourly.1 \
         -e "ssh ${SSH_IDENTITY}" \
         $(max_size_arg) \

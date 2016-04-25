@@ -38,3 +38,13 @@ use_notify=yes
 # example "500" means 500 bytes and "1.5m" means 1.5 megabytes.  See the
 # rsync(1) manpage for details.
 #max_size=10m
+
+# This  option allows you to specify the maximum transfer rate for the data
+# pushed to the backup server.  Default: send as fast as possible, with no
+# limiting of bandwidth.
+# Specified in "units per second".  The default units are kilobytes (1024
+# bytes), but this can be changed with an optional multiplier suffix.
+# So for example, "16" means "16 kilobytes/second", "100k" means "100
+# kilobytes per second", and "1.5m" means "1.5 megabytes per second".
+# See the rsync(1) manpage for details.
+#bwlimit=100k
