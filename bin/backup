@@ -159,7 +159,7 @@ function backup_module() {
 
     rm ${CONFIG_DIR}/${MODULE}/lock
 
-    notify "Backup done"
+    notify "Backup done for ${MODULE}"
 }
 
 
