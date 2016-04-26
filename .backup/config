@@ -7,7 +7,9 @@ backup_host=backuphost
 #ssh_id=$HOME/.ssh/id_rsa
 
 # The path on the backup_host that the backups live in.
-# This must name a directory on the backup_host.
+# This must name a directory on the backup_host.  Each module is backed up
+# to its own subdirectory under the remote_path directory, independent of
+# all other modules.
 remote_path=Backup/$(uname -n)
 
 # The path on the local machine that gets backed up.
