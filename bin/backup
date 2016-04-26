@@ -149,7 +149,7 @@ function backup_module() {
         exit 1
     fi
 
-    notify "Running backup"
+    notify "Running backup for ${MODULE}"
 
     touch ${CONFIG_DIR}/${MODULE}/lock
 
