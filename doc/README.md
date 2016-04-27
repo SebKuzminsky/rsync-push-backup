@@ -47,7 +47,8 @@ The following keywords are available:
   user's home directory. In our example, the `$(uname -n)` would automatically
   insert the local host name, so you know where the backups are from.  Each
   module is backed up to its own subdirectory under the remote_path
-  directory, independent of all other modules.
+  directory, independent of all other modules. This subdirectory's name will
+  be the same as the module's name.
 * `backup_root=$HOME/`: This is on the local host, the directory holding the
   stuff you want to back up. Note that we can define excludes and includes from
   this with the `exclude` file, as described below.
