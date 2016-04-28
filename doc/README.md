@@ -1,5 +1,27 @@
-## Installation
+## TOC
+In this document you will find:
 
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Configuration](#configuration)
+    * [The `config` files](#the-config-files)
+    * [The `exclude` files](#the-exclude-files)
+    * [Automated runs](#automated-runs)
+* [Usage](#usage)
+* [Results](#results)
+
+
+## Requirements
+Other than comparable solutions, this script has no requirements which are
+not met by most Linux distributions out-of-the-box: You will need `rsync` and
+`ssh` on both ends, plus Bash on the client (where the script runs). Most Linux
+distributions ship that per default, on some you might have to install `ssh`
+manually. For the client that would be the package `openssh-client`, the server
+would need `openssh-server`, and those packages can be found in the standard
+repositories of most distributions.
+
+
+## Installation
 Simply put the `backup` script to `/usr/local/bin` if you want to have it in
 the `$PATH` for all users. You can also place it into `~/bin` if only one
 user needs it, or to any directory of your choice (if it's not in the `$PATH`,
@@ -81,7 +103,7 @@ The following keywords are available:
    See the rsync(1) manpage for details.
 
 
-### The `exclude` file
+### The `exclude` files
 Here you can define exceptions, or "special handlings". `rsync` provides a quite
 dynamic configuration here. For full details, please consult the section named
 "Include/Exclude Pattern Rules" in the [rsync man page](http://linux.die.net/man/1/rsync)
