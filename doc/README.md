@@ -20,6 +20,10 @@ manually. For the client that would be the package `openssh-client`, the server
 would need `openssh-server`, and those packages can be found in the standard
 repositories of most distributions.
 
+If the `use_notify` config option is set, then there is an additional
+dependency on the notify-send program (part of Gnome, provided by the
+libnotify-bin package on Debian).
+
 
 ## Installation
 Simply put the `backup` script to `/usr/local/bin` if you want to have it in
