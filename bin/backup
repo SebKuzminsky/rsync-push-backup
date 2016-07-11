@@ -63,13 +63,13 @@ EOF
     [ $? == 0 ] || die "Failed creating target path"
 
     EXCLUDE_FILE="${CONFIG_DIR}/${MODULE}/exclude"
-    if [ -f ${EXCLUDE_FILE} ]; then
+    if [ -f "${EXCLUDE_FILE}" ]; then
         EXCLUDE="--delete-excluded --exclude-from=${EXCLUDE_FILE}"
     else
         EXCLUDE=""
     fi
 
-    if [ -n ${bwlimit} ]; then
+    if [ -n "${bwlimit}" ]; then
         BWLIMIT_ARG="--bwlimit=${bwlimit}"
     else
         BWLIMIT_ARG=""
