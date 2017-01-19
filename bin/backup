@@ -97,20 +97,20 @@ function rotate_snapshots {
   local snapshots=${!snapshot_var}
   log "Rotate $1"
 
-  ssh ${SSH_IDENTITY} -T -p $backup_port $backup_host <<EOF
-    cd $remote_path/${MODULE};
-    [ -d $interval.$snapshots ] && rm -rf $interval.$snapshots;
-    for i in {$snapshots..2}; do
-      [ -d $interval.\$(( \$i - 1 )) ] && mv $interval.\$(( \$i - 1 )) $interval.\$i;
-    done;
-    if [ -h $interval.0 ]; then
-      touch -h $interval.0
-      cp -al \$(readlink $interval.0) $interval.1;
-    else
-      touch $interval.0
-      cp -al $interval.0 $interval.1;
-    fi;
-EOF
+  ssh ${SSH_IDENTITY} -T -p $backup_port $backup_host bash -c " \
+    cd $remote_path/${MODULE}; \
+    [ -d $interval.$snapshots ] && rm -rf $interval.$snapshots; \
+    for i in {$snapshots..2}; do \
+      [ -d $interval.\$(( \$i - 1 )) ] && mv $interval.\$(( \$i - 1 )) $interval.\$i; \
+    done; \
+    if [ -h $interval.0 ]; then \
+      touch -h $interval.0; \
+      cp -al \$(readlink $interval.0) $interval.1; \
+    else \
+      touch $interval.0; \
+      cp -al $interval.0 $interval.1; \
+    fi; \
+  "
 }
 
 
