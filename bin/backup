@@ -75,12 +75,14 @@ EOF
         BWLIMIT_ARG=""
     fi
 
-    rsync -azP \
+    rsync -az \
+        --partial \
         --delete \
         ${EXCLUDE} \
         ${BWLIMIT_ARG} \
         --link-dest=../hourly.1 \
         -e "ssh ${SSH_IDENTITY}" \
+        --itemize-changes \
         $(max_size_arg) \
         $backup_root \
         $backup_host:$remote_path/${MODULE}/hourly.0;
