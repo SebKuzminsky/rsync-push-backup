@@ -198,7 +198,12 @@ done
 ARGS=(${0} "$@")
 
 # top-level config provides defaults
-log config dir ${CONFIG_DIR}
+if ! [ -d ${CONFIG_DIR} ]; then
+    log config dir ${CONFIG_DIR} not found
+    exit 1
+fi
+log using config dir ${CONFIG_DIR}
+
 [ -r ${CONFIG_DIR}/config ] && source ${CONFIG_DIR}/config
 
 if [ -n "${ssh_id}" ]; then
