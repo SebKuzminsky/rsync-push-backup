@@ -1,0 +1,2 @@
+backup_host=localhost
+remote_path=$(pwd)/backups

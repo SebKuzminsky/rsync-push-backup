@@ -1,0 +1,5 @@
+backup_root=$(pwd)/dir-to-backup
+hourly_snapshots=2
+daily_snapshots=3
+weekly_snapshots=4
+monthly_snapshots=5
