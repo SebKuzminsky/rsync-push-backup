@@ -122,7 +122,6 @@ function test_age() {
 	"stat -c '%Y' $remote_path/${MODULE}/$interval.0")
     [ -z "$mtime" ] && return 1
     age=$(( $(date +%s) - $mtime ))
-    log "$interval age is $age / $max_age"
     test $age -gt $max_age
 }
 
