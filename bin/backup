@@ -87,7 +87,7 @@ EOF
         $backup_root \
         $backup_host:$remote_path/${MODULE}/hourly.0;
 
-    [ $? == 0 ] || die "rsync failed"
+    [ $? == 0 -o $? == 24 ] || die "rsync failed"
 }
 
 
