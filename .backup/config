@@ -2,6 +2,10 @@
 # "USER@HOST".
 backup_host=backuphost
 
+# This is the port number of the ssh daemon on the backup_host.  Optional,
+# defaults to 22 if omitted.
+#backup_port=22
+
 # The ssh key to use to authenticate with the backup_host.  Leave it unset
 # (or set it to the empty value) to skip ssh key authentication.
 #ssh_id=$HOME/.ssh/id_rsa

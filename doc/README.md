@@ -65,6 +65,10 @@ The following keywords are available:
 * `backup_host=backuphost`: where to backup to. This is either the host name
   only (if your logins are identical), or `user@host` to use a different account
   on the backup machine.
+* `backup_port=port_number`: The TCP port on the backup_host that the
+  local backup pusher will connect to.  There must be an ssh daemon on
+  the backup_host listening on this port.  Defaults to 22 if omitted
+  (which is the default ssh daemon listening port).
 * `ssh_id`: The ssh key to use to authenticate with the backup_host. Leave it unset
   (or set it to the empty value) to skip ssh key authentication (or use your
   default identity as setup in your `~/.ssh/config`).
