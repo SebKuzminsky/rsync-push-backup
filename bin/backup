@@ -36,29 +36,35 @@ function max_size_arg() {
 }
 
 
+function run_ssh() {
+    CMD="${1}"
+    ssh ${SSH_IDENTITY} -T -p $backup_port $backup_host "${CMD}"
+}
+
+
 function push_backup() {
     # Create the backup directory if needed.
     # (Re)create the symlinks if they don't exist, or if the number of
     # snapshots has changed such that the symlinks no longer point to the
     # right place.
-    ssh ${SSH_IDENTITY} -T -p $backup_port $backup_host <<EOF
+    run_ssh "
         mkdir -p $remote_path/${MODULE} &&
         cd $remote_path/${MODULE} &&
         {
-            if [ ! -h daily.0 -o "\$(readlink daily.0)" != hourly.${hourly_snapshots} ]; then
+            if [ ! -h daily.0 -o \"\$(readlink daily.0)\" != hourly.${hourly_snapshots} ]; then
                 rm -f daily.0;
                 ln -s hourly.${hourly_snapshots} daily.0;
             fi;
-            if [ ! -h weekly.0 -o "\$(readlink weekly.0)" != daily.${daily_snapshots} ]; then
+            if [ ! -h weekly.0 -o \"\$(readlink weekly.0)\" != daily.${daily_snapshots} ]; then
                 rm -f weekly.0;
                 ln -s daily.${daily_snapshots} weekly.0;
             fi;
-            if [ ! -h monthly.0 -o "\$(readlink monthly.0)" != weekly.${weekly_snapshots} ]; then
+            if [ ! -h monthly.0 -o \"\$(readlink monthly.0)\" != weekly.${weekly_snapshots} ]; then
                 rm -f monthly.0;
                 ln -s weekly.${weekly_snapshots} monthly.0;
             fi;
         }
-EOF
+    "
 
     [ $? == 0 ] || die "Failed creating target path"
 
