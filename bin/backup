@@ -101,7 +101,7 @@ function rotate_snapshots {
         cd $remote_path/${MODULE}; \
         [ -d $interval.$snapshots ] && rm -rf $interval.$snapshots; \
         for i in {$snapshots..2}; do \
-            [ -d $interval.\$(( \$i - 1 )) ] && mv $interval.\$(( \$i - 1 )) $interval.\$i; \
+            [ -d $interval.\$((i-1)) ] && mv $interval.\$((i-1)) $interval.\$i; \
         done; \
         if [ -h $interval.0 ]; then \
             touch -h $interval.0; \
